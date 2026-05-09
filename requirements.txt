@@ -2,3 +2,6 @@ numpy
 opencv-python
 Pillow
 pillow-heif
+pandas
+scikit-learn
+joblib
