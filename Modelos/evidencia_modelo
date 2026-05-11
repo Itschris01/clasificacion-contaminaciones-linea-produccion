@@ -1,0 +1,51 @@
+import joblib
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+from sklearn.model_selection import train_test_split
+
+# 1. Cargar el modelo y los datos
+archivo_modelo = "C16760_Cristhian_Rojas_Alvarez.joblib"
+archivo_datos = "dataset_grupal_super_limpio.csv"
+
+print("--- Iniciando Verificación de Evidencia ---")
+
+try:
+    modelo = joblib.load(archivo_modelo)
+    df = pd.read_csv(archivo_datos, sep=';')
+    
+    # 2. Separar X e y
+    X = df.drop('etiqueta', axis=1)
+    y = df['etiqueta']
+
+    # 3. Dividir datos (usamos random_state=42 para que los resultados sean constantes)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
+
+    # 4. Realizar predicciones
+    y_pred = modelo.predict(X_test)
+
+    # 5. Generar métricas de texto
+    print("\n✅ REPORTE DE CLASIFICACIÓN:")
+    print(classification_report(y_test, y_pred))
+    
+    acc = accuracy_score(y_test, y_pred)
+    print(f"Precisión Global (Accuracy): {acc:.4f}")
+
+    # 6. Generar Matriz de Confusión Gráfica
+    cm = confusion_matrix(y_test, y_pred)
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
+                xticklabels=['Clip (0)', 'Arroz (1)'], 
+                yticklabels=['Clip (0)', 'Arroz (1)'])
+    plt.title(f'Matriz de Confusión - SVM (Acc: {acc:.2f})')
+    plt.xlabel('Predicción del Modelo')
+    plt.ylabel('Valor Real (Etiqueta)')
+    
+    # Guardar la imagen para el reporte
+    plt.savefig('matriz_confusion_evidencia.png')
+    print("\n🖼️ Gráfico guardado como: 'matriz_confusion_evidencia.png'")
+    plt.show()
+
+except Exception as e:
+    print(f"❌ Error al procesar la evidencia: {e}")
